@@ -1,22 +1,17 @@
 from mrjob.job import MRJob
 
-class NumOrdersFrequencyCount(MRJob):
+class NumOrdersByAmountRange(MRJob):
 
     def mapper(self, _, line):
         (customer, item, subtotal) = line.split(',')
         fst = float(subtotal)
-        if (fst <= 10.0):
-            yield 0, subtotal
-        if (fst > 10.0 and fst <= 20.0):
-            yield 1, subtotal
-        if (fst > 20.0):
-            yield 2, subtotal
-            
-    def reducer(self, rango, subtotal):
+        yield fst // 10 * 10, subtotal
+
+    def reducer(self, key, subtotal):
         numOrders = 0
         for x in subtotal:
             numOrders += 1
-        yield rango, numOrders
+        yield int(key), numOrders
 
 if __name__ == '__main__':
-    NumOrdersFrequencyCount.run()
+    NumOrdersByAmountRange.run()
